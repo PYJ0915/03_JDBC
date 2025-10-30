@@ -219,12 +219,41 @@ public class UserView {
 
 	/** ID, PW가 일치하는 회원이 있을 경우 이름 수정(UPDATE)
 	 * 1차적으로 ID, PW 확인
-	 * 일치하면 이름 수정
-	 * 불일치 
+	 * 일치하면 수정할 이름 받고 수정
+	 * 불일치 시 "아이디 및 비밀번호가 일치하지 않습니다" 출력
 	 */
 	private void updateName() throws Exception{
 		
+		System.out.println("\n==== ID, PW가 일치하는 회원이 있을 경우 이름 수정 ====\n");
 		
+		System.out.print("ID : ");
+		String id = sc.next();
+		
+		System.out.print("PW : ");
+		String pw = sc.next();
+		
+		User user = service.idpwCheck(id, pw);
+		
+		if(user == null) {
+			
+			System.out.println("\n**** 아이디 및 비밀번호가 일치하지 않습니다 ****\n");
+			return;
+			
+		}
+		
+		System.out.print("수정할 이름을 입력하세요 : ");
+		String name = sc.next();
+		
+		int result = service.updateName(name, id);
+		
+		if(result != 0) {
+			
+			System.out.println("\n**** 수정 성공 ****\n");
+			return;
+			
+		}
+		
+		System.out.println("\n**** 수정 실패 ㅜㅜ ****\n");
 		
 	}
 

@@ -224,5 +224,77 @@ public class UserDAO {
 		
 		return result;
 	}
+
+
+	public User idpwCheck(Connection conn, String id, String pw) throws Exception{
+		
+		User user = null;
+		
+		try {
+			
+			String sql = """
+					SELECT USER_NO, USER_ID, USER_PW, USER_NAME, TO_CHAR(ENROLL_DATE, 'YYYY"년" MM"월" DD"일"') ENROLL_DATE 
+					FROM TB_USER 
+					WHERE USER_ID = ? AND USER_PW = ?
+					""";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			pstmt.setString(2, pw);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				
+				int userNo = rs.getInt("USER_NO");
+				String userId = rs.getString("USER_ID");
+				String userPw = rs.getString("USER_PW");
+				String userName = rs.getString("USER_NAME");
+				String enrollDate = rs.getString("ENROLL_DATE");
+				
+				user = new User(userNo, userId, userPw, userName, enrollDate);
+				
+			}
+			
+		} finally {
+			
+			JDBCTemplate.close(rs);
+			JDBCTemplate.close(pstmt);
+			
+		}
+		
+		
+		return user;
+	}
+
+
+	public int updateName(Connection conn, String name, String id) throws Exception{
+		
+		int result = 0;
+		
+		try {
+			
+			String sql = """
+					UPDATE TB_USER 
+					SET USER_NAME = ? 
+					WHERE USER_ID = ?
+					""";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, name);
+			pstmt.setString(2, id);
+			
+			result = pstmt.executeUpdate();
+			
+		} finally {
+			
+			JDBCTemplate.close(pstmt);
+		}
+		
+		
+		return result;
+	}
 	
 }

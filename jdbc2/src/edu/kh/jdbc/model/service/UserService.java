@@ -106,5 +106,37 @@ public class UserService {
 		
 		return result;
 	}
+
+	public User idpwCheck(String id, String pw) throws Exception{
+		
+		Connection conn = JDBCTemplate.getConnection();
+		
+		User user = dao.idpwCheck(conn, id, pw);
+		
+		JDBCTemplate.close(conn);
+		
+		return user;
+	}
+
+	public int updateName(String name, String id) throws Exception{
+		
+		Connection conn = JDBCTemplate.getConnection();
+		
+		int result = dao.updateName(conn, name, id);
+		
+		if(result != 0) {
+			
+			JDBCTemplate.commit(conn);
+			
+		} else {
+			
+			JDBCTemplate.rollback(conn);
+			
+		}
+		
+		JDBCTemplate.close(conn);
+		
+		return result;
+	}
 	
 }
