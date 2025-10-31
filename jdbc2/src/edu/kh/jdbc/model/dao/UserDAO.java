@@ -66,7 +66,7 @@ public class UserDAO {
 	}
 
 
-	/** User 전체 조회 DAO
+	/** 2. User 전체 조회 DAO
 	 * @param conn
 	 * @return List<User> userList
 	 */
@@ -79,7 +79,7 @@ public class UserDAO {
 			// 2. SQL 작성
 			String sql = """
 					SELECT USER_NO, USER_ID, USER_PW, USER_NAME, TO_CHAR(ENROLL_DATE, 'YYYY"년" MM"월" DD"일"') ENROLL_DATE 
-					FROM TB_USER
+					FROM TB_USER ORDER BY USER_NO
 					""";
 			// 3. PreapredStatement 객체 생성
 			pstmt = conn.prepareStatement(sql);
@@ -120,6 +120,11 @@ public class UserDAO {
 	}
 
 
+	/** 3. 검색어를 입력 받아 이름에 검색어가 포함되는 USER 조회 DAO
+	 * @param conn
+	 * @param input
+	 * @return
+	 */
 	public List<User> selectName(Connection conn, String input) throws Exception{
 		
 		List<User> userList = new ArrayList<User>();
@@ -160,6 +165,11 @@ public class UserDAO {
 	}
 
 
+	/** 4. USER_NO를 입력 받아 일치하는 USER 조회 DAO
+	 * @param conn
+	 * @param input
+	 * @return
+	 */
 	public User selectUser(Connection conn, int input) throws Exception{
 			
 		User user = null;
@@ -200,6 +210,11 @@ public class UserDAO {
 	}
 
 
+	/** 5. USER_NO를 입력 받아 일치하는 USER 삭제 DAO
+	 * @param conn
+	 * @param userNo
+	 * @return
+	 */
 	public int deleteUser(Connection conn, int userNo) throws Exception{
 		
 		int result = 0;
@@ -226,7 +241,13 @@ public class UserDAO {
 	}
 
 
-	public User idpwCheck(Connection conn, String id, String pw) throws Exception{
+	/** 6-1. ID, PW를 입력 받아 일치하는 USER 반환 DAO (풀이 1.)
+	 * @param conn
+	 * @param id
+	 * @param pw
+	 * @return
+	 */
+/*	public User idpwCheck(Connection conn, String id, String pw) throws Exception{
 		
 		User user = null;
 		
@@ -266,9 +287,56 @@ public class UserDAO {
 		
 		
 		return user;
+	} */
+
+	
+	/** 6-1. ID, PW를 입력 받아 일치하는 USER 반환 DAO (풀이 2.)
+	 * @param conn
+	 * @param id
+	 * @param pw
+	 * @return
+	 */
+	public int idpwCheck(Connection conn, String id, String pw) throws Exception{
+		
+		int userNo = 0; 
+		
+		try {
+			
+			String sql = """
+					SELECT USER_NO 
+					FROM TB_USER 
+					WHERE USER_ID = ? AND USER_PW =?
+					""";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, id);
+			pstmt.setString(2, pw);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				
+				userNo = rs.getInt("USER_NO");
+				
+			}
+					
+		} finally {
+			
+			JDBCTemplate.close(rs);
+			JDBCTemplate.close(pstmt);
+			
+		}
+		
+		return userNo;
 	}
 
-
+	/** 6-2. ID, PW 일치하는 USER 존재하는 경우 이름 수정 DAO (풀이 1.)
+	 * @param conn
+	 * @param name
+	 * @param id
+	 * @return
+	 */
 	public int updateName(Connection conn, String name, String id) throws Exception{
 		
 		int result = 0;
@@ -296,5 +364,75 @@ public class UserDAO {
 		
 		return result;
 	}
-	
+
+
+	/** 6-2. ID, PW 일치하는 USER 존재하는 경우 이름 수정 DAO (풀이 2.)
+	 * @param conn
+	 * @param name
+	 * @param userNo
+	 * @return
+	 */
+	public int updateName(Connection conn, String name, int userNo) throws Exception{
+		
+		int result = 0;
+		
+		try {
+			
+			String sql = """
+					UPDATE TB_USER 
+					SET USER_NAME = ? 
+					WHERE USER_NO = ?
+					""";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, name);
+			pstmt.setInt(2, userNo);
+			
+			result = pstmt.executeUpdate();
+			
+		} finally {
+			
+			JDBCTemplate.close(pstmt);
+		}
+		
+		return result;
+	}
+
+
+	/** 7. ID 중복 검사 DAO
+	 * @param conn
+	 * @param userId
+	 * @return
+	 */
+	public int idCheck(Connection conn, String userId) throws Exception{
+		
+		int count = 0;
+		
+		try {
+			
+			String sql = """
+					SELECT COUNT(*) 
+					FROM TB_USER
+					WHERE USER_ID = ?
+					""";
+			
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, userId);
+			
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				
+				count = rs.getInt(1); // 순번도 가능!
+				
+			}
+			
+		} finally {
+		}
+		
+		return count;
+	}
+
 }
