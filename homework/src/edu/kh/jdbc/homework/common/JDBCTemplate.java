@@ -45,7 +45,7 @@ public class JDBCTemplate {
 	/** 전달받은 커넥션에서 수행한 SQL을 커밋하는 메서드
 	 * 
 	 */
-	public static void commit() {
+	public static void commit(Connection conn) {
 		
 		try {
 			
@@ -64,7 +64,7 @@ public class JDBCTemplate {
 	/** 전달받은 커넥션에서 수행한 SQL을 롤백하는 메서드
 	 * 
 	 */
-	public static void rollback() {
+	public static void rollback(Connection conn) {
 		
 		try {
 			
